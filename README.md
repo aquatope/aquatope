@@ -3,6 +3,7 @@ Scholar project | Main code
 
 # Modules 
 * pyttsx3
+* rustylib (by ZeyaTsu)
 
 
 ## pyttsx3
