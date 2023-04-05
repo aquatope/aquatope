@@ -3,6 +3,8 @@ Scholar project | Main code
 
 # Modules 
 * pyttsx3
+* SpeechRecognition
+* pyaudio
 * rustylib (by ZeyaTsu)
 
 
@@ -18,4 +20,30 @@ sentence = ""
 
 engine.say(phrase)
 engine.runAndWait()
+```
+
+```py
+import speech_recognition as sr
+import pyttsx3
+
+reco = sr.Recognizer()
+
+while True:
+    try:
+        with sr.Microphone() as mic:
+            reco.adjust_for_ambient_noise(mic, duration=0.2)
+            audio = reco.listen(mic)
+
+            text = reco.recognize_google(audio, language="fr-FR")
+            text = text.lower()
+
+            print(f"{text}")
+
+            # Dire la phrase en audio
+            moteur.say(text)
+            moteur.runAndWait()
+
+
+    except Exception as e:
+        print(e)
 ```
