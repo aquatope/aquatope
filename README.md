@@ -39,11 +39,6 @@ while True:
 
             print(f"{text}")
 
-            # Dire la phrase en audio
-            moteur.say(text)
-            moteur.runAndWait()
-
-
     except Exception as e:
         print(e)
 ```
