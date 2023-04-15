@@ -7,6 +7,7 @@ Scholar project | Main code
 * pyaudio
 * rustylib (by ZeyaTsu)
 
+# Terminal, desktop-app
 
 ## pyttsx3
 ```py
@@ -41,4 +42,84 @@ while True:
 
     except Exception as e:
         print(e)
+```
+
+# Discord
+
+```py
+import nextcord
+import os
+import speech_recognition as sr
+from dotenv import load_dotenv
+from nextcord.ext import commands
+
+load_dotenv()
+TOKEN = os.getenv('DISCORD_TOKEN')
+GUILD = os.getenv('DISCORD_GUILD')
+
+bot = commands.Bot(command_prefix='!')
+
+@bot.command(name='join', help='Make the bot join the voice channel')
+async def join(ctx):
+    if ctx.author.voice is None:
+        await ctx.send("You are not in a voice channel.")
+        return
+
+    channel = ctx.author.voice.channel
+    await channel.connect()
+
+@bot.command(name='leave', help='Make the bot leave the voice channel')
+async def leave(ctx):
+    voice = nextcord.utils.get(bot.voice_clients, guild=ctx.guild)
+    if voice is not None:
+        await voice.disconnect()
+
+@bot.command(name='listen', help='Listen to voice channel and transcribe speech')
+async def listen(ctx):
+    if not ctx.author.voice:
+        await ctx.send('You are not in a voice channel.')
+        return
+
+    # Get the voice client for the bot's current server
+    voice_client = nextcord.utils.get(bot.voice_clients, guild=ctx.guild)
+
+    # Check if the bot is connected to a voice channel
+    if not voice_client:
+        await ctx.send('Bot is not connected to a voice channel.')
+        return
+
+    # Check if the bot is already listening to a voice channel
+    if voice_client.is_playing():
+        await ctx.send('Bot is already listening to a voice channel.')
+        return
+
+    # Start listening to the voice channel
+    voice_client.listen(discord.VoiceChannel)
+
+    # Create a speech recognition object
+    recognizer = sr.Recognizer()
+
+    # Loop to continuously transcribe audio from the voice channel
+    while voice_client.is_connected() and voice_client.is_playing():
+        try:
+            # Get audio from the voice channel
+            audio = voice_client.listen(discord.VoiceChannel)
+
+            # Transcribe the audio using Google Speech Recognition
+            text = recognizer.recognize_google(audio)
+
+            # Output the transcribed text to the console
+            print(f'Transcription: {text}')
+
+            # Send the transcribed text to the Discord chat
+            await ctx.send(f'Transcription: {text}')
+
+        except sr.UnknownValueError:
+            print('Speech recognition could not understand audio.')
+        except sr.RequestError as e:
+            print(f'Request error: {e}')
+
+    await ctx.send('Stopped listening to voice channel.')
+
+bot.run(TOKEN)
 ```
